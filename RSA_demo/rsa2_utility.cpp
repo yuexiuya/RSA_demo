@@ -26,7 +26,6 @@ bool RSA2_Utility::generate_rsa_key()
     if(fp == NULL) {
         return false;
     }
-    RSA_print_fp(stdout, m_test, 0);
 
     fclose(fp);
 
@@ -91,49 +90,30 @@ bool RSA2_Utility::open_pubkey()
     return true;
 }
 
-int RSA2_Utility::prikey_encrypt(int len, const uint8_t* str, uint8_t** str_en)
+int RSA2_Utility::pubkey_encrypt(int len, const char *str, char *str_en)
 {
-    printf("prikey_encrypt \n");
-    RSA_print_fp(stdout, m_prikey, 10);
-    int _outLen = RSA_size(m_prikey);
-
-    *str_en = (uint8_t*)malloc(_outLen);
-    if( *str_en == NULL ) {
-        printf("prikey_encrypt malloc error !!! \n");
+    printf("[prikey_encrypt] \n");
+    if(str == nullptr) {
+        printf("[prikey_encrypt] str is nullptr \n");
         return -1;
     }
-    memset((void*)*str_en, 0, _outLen);
-    return RSA_private_encrypt(len, (uint8_t *)str, (uint8_t *)str_en, m_prikey, RSA_PKCS1_PADDING);
+    if(str_en == nullptr) {
+        printf("[prikey_encrypt] str_en is nullptr \n");
+        return -1;
+    }
+    return RSA_public_encrypt(len, (uint8_t *)str, (uint8_t *)str_en, m_pubkey, RSA_PKCS1_PADDING);
 }
 
-int RSA2_Utility::pubkey_decrypt(int len, const uint8_t *str, uint8_t **str_de)
+int RSA2_Utility::prikey_decrypt(int len, const char *str, char *str_de)
 {
-    printf("pubkey_decrypt \n");
-//    printf("pubkey_decrypt mallocxxxx !!! \n");
-//    if(m_pubkey == nullptr) {
-//        printf("pubkey_decrypt aaaaa !!! \n");
-//    } else {
-//        printf("pubkey_decrypt cccc !!! \n");
-//        int _deLen = RSA_size(m_pubkey);
-//        printf("pubkey_decrypt bbbb !!! \n");
-//    }
-//    RSA_print_fp(stdout, m_prikey, 10);
-
-    printf("pubkey_decrypt malloc0000 !!! \n");
-    int _deLen = RSA_size(m_pubkey);
-    *str_de = (uint8_t*)malloc(_deLen);
-    if( *str_de == NULL ) {
-        printf("pubkey_decrypt malloc error !!! \n");
+    printf("[pubkey_decrypt] \n");
+    if(str == nullptr) {
+        printf("[pubkey_decrypt] str is nullptr \n");
         return -1;
     }
-    memset((void*)*str_de, 0, _deLen);
-
-    printf("pubkey_decrypt malloc 11111 !!! \n");
-    int ret = RSA_public_decrypt(len+1, (uint8_t *)str, (uint8_t *)str_de, m_pubkey, RSA_PKCS1_PADDING);
-    printf("pubkey_decrypt malloc 2222 !!! \n");
-
-    for(int i = 0; i<len; i++) {
-        printf("de_out + %X \n",str_de[i]);
+    if(str_de == nullptr) {
+        printf("[pubkey_decrypt] str_de is nullptr \n");
+        return -1;
     }
-    return ret;
+    return RSA_private_decrypt(len, (uint8_t *)str, (uint8_t *)str_de, m_prikey, RSA_PKCS1_PADDING);
 }
